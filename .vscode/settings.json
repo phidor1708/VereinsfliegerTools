@@ -2,5 +2,8 @@
     "chat.tools.terminal.autoApprove": {
         "/Users/philipp/repos/VereinsfliegerTools/.venv/bin/python": true,
         ".venv/bin/python": true
+    },
+    "workbench.editorAssociations": {
+        "*.pdf": "pdf.preview"
     }
 }
