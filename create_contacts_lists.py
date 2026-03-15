@@ -17,6 +17,11 @@ UP_DIR = APP_ROOT / "up"
 MERGED_ACTIVE_LABEL = "MFG-Aktive"
 MERGED_ACTIVE_KEYS = {"aktiv", "aktiv_probe"}
 
+MERGED_FOERDER_LABEL = "MFG-FörderUndEhrMitglieder"
+MERGED_FOERDER_KEYS = {"ehrenmitglied", "foerdernd", "fordernd"}
+
+SKIP_KEYS = {"ausgeschieden", "intern"}
+
 
 @dataclass(frozen=True)
 class ContactRow:
@@ -113,9 +118,13 @@ def to_contact_rows(df: pd.DataFrame) -> dict[str, list[ContactRow]]:
     grouped: dict[str, list[ContactRow]] = {}
     for _, row in df.iterrows():
         key = row["status_key"]
+        if key in SKIP_KEYS:
+            continue
         original_label = str(row["status_label"]).strip()
         if key in MERGED_ACTIVE_KEYS:
             target_label = MERGED_ACTIVE_LABEL
+        elif key in MERGED_FOERDER_KEYS:
+            target_label = MERGED_FOERDER_LABEL
         else:
             target_label = original_label
 
@@ -128,7 +137,7 @@ def to_contact_rows(df: pd.DataFrame) -> dict[str, list[ContactRow]]:
             )
         )
 
-    ordered_labels = sorted(grouped.keys(), key=lambda label: (0 if label == MERGED_ACTIVE_LABEL else 1, label.lower()))
+    ordered_labels = sorted(grouped.keys(), key=lambda label: (0 if label == MERGED_ACTIVE_LABEL else 1 if label == MERGED_FOERDER_LABEL else 2, label.lower()))
     return {
         label: sorted(
             grouped[label],
@@ -193,32 +202,36 @@ def run_osascript(script: str, args: list[str]) -> str:
     return (result.stdout or "").strip()
 
 
-def ensure_groups_do_not_exist(group_names: list[str]) -> None:
-    check_script = """
+def delete_existing_vf_import_groups(prefix: str) -> list[str]:
+    """Delete all Contacts groups whose name contains ' VF Import ' (identifies auto-created lists)."""
+    find_and_delete_script = """
     on run argv
-      set existingNames to {}
+      set marker to item 1 of argv
+      set deletedNames to {}
       tell application \"Contacts\"
-        repeat with groupName in argv
-          if (exists group (contents of groupName)) then
-            set end of existingNames to (contents of groupName)
+        set allGroups to every group
+        repeat with g in allGroups
+          set gName to name of g
+          if gName contains marker then
+            set end of deletedNames to gName
+            delete g
           end if
         end repeat
+        save
       end tell
-      if (count of existingNames) is 0 then
+      if (count of deletedNames) is 0 then
         return \"\"
       end if
       set AppleScript's text item delimiters to \"||\"
-      set joined to existingNames as text
+      set joined to deletedNames as text
       set AppleScript's text item delimiters to \"\"
       return joined
     end run
     """
-    output = run_osascript(check_script, group_names)
+    output = run_osascript(find_and_delete_script, ["VF Import"])
     if output:
-        existing = [name for name in output.split("||") if name]
-        raise RuntimeError(
-            "Refusing to touch existing Contacts lists. Already present: " + ", ".join(existing)
-        )
+        return [name for name in output.split("||") if name]
+    return []
 
 
 def create_contacts_group(group_name: str, contacts: list[ContactRow]) -> None:
@@ -247,7 +260,7 @@ def create_contacts_group(group_name: str, contacts: list[ContactRow]) -> None:
 
                 set fileRef to open for access (POSIX file tsvPath)
                 try
-                    set txt to read fileRef
+                    set txt to read fileRef as «class utf8»
                 on error number -39
                     set txt to ""
                 end try
@@ -296,9 +309,12 @@ def create_contacts_group(group_name: str, contacts: list[ContactRow]) -> None:
 def apply_to_contacts(grouped: dict[str, list[ContactRow]], prefix: str) -> list[str]:
     run_stamp = datetime.now().strftime("%Y-%m-%d %H-%M")
     non_empty_labels = [label for label, contacts in grouped.items() if contacts]
-    group_names = [f"{prefix} {label} {run_stamp}".strip() for label in non_empty_labels]
+    # Format: "{label} VF Import {timestamp}"
+    group_names = [f"{label} VF Import {run_stamp}".strip() for label in non_empty_labels]
 
-    ensure_groups_do_not_exist(group_names)
+    deleted = delete_existing_vf_import_groups(prefix)
+    if deleted:
+        print(f"Deleted {len(deleted)} existing VF Import list(s): {', '.join(deleted)}")
 
     created: list[str] = []
     for label, group_name in zip(non_empty_labels, group_names):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date
+from datetime import datetime
 import os
 import re
 import signal
@@ -263,6 +263,49 @@ def open_mitglieder_left(page: Page, timeout_ms: int) -> None:
     page.wait_for_load_state("networkidle", timeout=timeout_ms)
 
 
+def select_table_quick_config(page: Page, config_label: str, timeout_ms: int) -> None:
+    selected = page.evaluate(
+        """
+        ([wantedLabel]) => {
+            const selects = Array.from(document.querySelectorAll("select"));
+            const select = selects.find((candidate) => {
+                if (candidate.name === "lst_configavailable") {
+                    return true;
+                }
+                if ((candidate.getAttribute("onchange") || "").includes("onChangeTableListQuickConfig")) {
+                    return true;
+                }
+                const containerText = candidate.parentElement?.textContent || "";
+                return containerText.includes("Konfiguration laden");
+            });
+            if (!select) {
+                return false;
+            }
+
+            const wantedOption = Array.from(select.options).find(
+                (option) => !option.disabled && option.textContent?.trim() === wantedLabel
+            );
+            if (!wantedOption) {
+                return false;
+            }
+
+            if (select.value === wantedOption.value) {
+                return true;
+            }
+
+            select.value = wantedOption.value;
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+            return true;
+        }
+        """,
+        [config_label],
+    )
+    if not selected:
+        raise RuntimeError(f"Could not find quick configuration option {config_label!r} on Mitglieder page.")
+
+    page.wait_for_load_state("networkidle", timeout=timeout_ms)
+
+
 def stop_after_step(current_step: str, stop_after: str, keep_open_seconds: int) -> bool:
     if current_step != stop_after:
         return False
@@ -369,6 +412,11 @@ def main() -> None:
         default=None,
         help="Output CSV path (relative to app folder if not absolute).",
     )
+    parser.add_argument(
+        "--quick-config",
+        default="Alles",
+        help="Quick configuration name to select on the Mitglieder page before export (default: Alles).",
+    )
     args = parser.parse_args()
 
     env = load_env_file(APP_ROOT / ".env.local")
@@ -379,7 +427,8 @@ def main() -> None:
 
     ensure_no_other_instances(kill_other_runs=args.kill_other_runs)
 
-    default_output = Path("up") / f"mitglieder_{date.today().isoformat()}.csv"
+    run_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    default_output = Path("up") / f"mitglieder_{run_stamp}.csv"
     output_path = Path(args.output) if args.output else default_output
     if not output_path.is_absolute():
         output_path = APP_ROOT / output_path
@@ -403,6 +452,7 @@ def main() -> None:
             if stop_after_step("mitglieder", args.stop_after, args.keep_open_seconds):
                 return
 
+            select_table_quick_config(page, config_label=args.quick_config, timeout_ms=args.timeout_ms)
             clear_table_filters(page, timeout_ms=args.timeout_ms)
             if stop_after_step("filters", args.stop_after, args.keep_open_seconds):
                 return
