@@ -1,0 +1,32 @@
+Modellfliegergruppe Höchstadt / Aisch e.V.       				
+Meldung von Freiwilligen für Rasenmähdienst 2026				
+Datum	Name 1	Telefon	Name 2	Telefon2
+Samstag, 11. April 2026		 Alle: Fühjahrsputz  von 9:00 - 12:00		
+Samstag, 18. April 2026	Seeberger Harald	0177-8959853	Hoderlein Christian	0160-3610213
+Samstag, 25. April 2026	Rasche Thomas	0160 91165481	Temming Peter	0151-20651088
+Samstag, 2. Mai 2026	Kühschelm Martin	0151 17424158	Golembiewski Hans-Jürgen	0178-1687443
+Samstag, 9. Mai 2026	Stach Dieter	09193 5775	Kupfer Sven	09193-9160
+Samstag, 16. Mai 2026	Schmidt Julian	09548-6119	Nikol Norbert	09193-4833
+Samstag, 23. Mai 2026	Golembiewski Semjon	0179-6711590	Golembiewski Boris	01577-1705350
+Samstag, 30. Mai 2026	Baumann Michael	0177-6767881	Baumann Matthias	0177-6767881
+Samstag, 6. Juni 2026	Hollfelder Helmut	0151-11500210	Weis Thomas	017655769653
+Samstag, 13. Juni 2026	Loßkarn Manfred	09543-4630	Böhme Fynn	+49 9195 9216474
+Samstag, 20. Juni 2026	Holzenleuchter Reinhard	0172 94 26 604	Bohl Reinhold	0160-95721659
+Samstag, 27. Juni 2026	Kühschelm Martin	0151 17424158	Golembiewski Hans-Jürgen	0178-1687443
+Samstag, 4. Juli 2026	Schmidt Julian	09548-6119	Nikol Norbert	09193-4833
+Samstag, 11. Juli 2026	Rehäußer Bernd	09193-1448	Thiem Fabian	09193-5081630
+Samstag, 18. Juli 2026	Windischmann Heinrich	09193 8187	Windischmann Jürgen	09548-980135
+Samstag, 25. Juli 2026	Mönch Matthias	09135-3973	Baumann Warnfried	09193-504994
+Samstag, 1. August 2026	Loßkarn Manfred	09543-4630	Böhme Fynn	+49 9195 9216474
+Samstag, 8. August 2026	Rasche Thomas	0160 91165481	Temming Peter	0151-20651088
+Samstag, 15. August 2026	Hollfelder Helmut	0151-11500210	Weis Thomas	017655769653
+Samstag, 22. August 2026	Holzenleuchter Reinhard	0172 94 26 604	Bohl Reinhold	0160-95721659
+Samstag, 29. August 2026	Baumann Michael	0177-6767881	Baumann Matthias	0177-6767881
+Samstag, 5. September 2026	Mönch Matthias	09135-3973	Baumann Warnfried	09193-504994
+Samstag, 12. September 2026	Rehäußer Bernd	09193-1448	Thiem Fabian	09193-5081630
+Samstag, 19. September 2026	Golembiewski Semjon	0179-6711590	Golembiewski Boris	01577-1705350
+Samstag, 26. September 2026	Pfeifer Roland	09548-1532	Stegmann Simon	+49 9195 6154
+Samstag, 3. Oktober 2026	Stach Dieter	09193 5775	Kupfer Sven	09193-9160
+Samstag, 10. Oktober 2026	Windischmann Heinrich	09193 8187	Windischmann Jürgen	09548-980135
+Samstag, 17. Oktober 2026	Pfeifer Roland	09548-1532	Stegmann Simon	09548-1532
+Samstag, 24. Oktober 2026	Seeberger Harald	0177-8959853	Hoderlein Christian	0160-3610213
