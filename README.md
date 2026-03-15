@@ -1,5 +1,9 @@
 # VereinsfliegerTools
 
+## Projektdokumentation
+
+- Vollständige Doku: [docs/PROJEKTDOKUMENTATION.md](docs/PROJEKTDOKUMENTATION.md)
+
 ## Mitglieder CSV Download
 
 ### 1) Install dependencies

@@ -173,6 +173,7 @@ TEMPLATE = r"""\documentclass[10pt,a4paper]{article}
 \end{tabularx}
 
 \vfill
+{\footnotesize\color{gray}\ensuremath{\bullet} Der mit dem Punkt gekennzeichnete M\"aher ist f\"ur die Durchf\"uhrung verantwortlich.}\par
 {\footnotesize\color{gray}Stand M\"ahplan: <<PLAN_STATUS>>\hfill Seite 1 von 2}
 
 \newpage
@@ -199,6 +200,7 @@ TEMPLATE = r"""\documentclass[10pt,a4paper]{article}
 \end{tabularx}
 
 \vfill
+{\footnotesize\color{gray}\ensuremath{\bullet} Der mit dem Punkt gekennzeichnete M\"aher ist f\"ur die Durchf\"uhrung verantwortlich.}\par
 {\footnotesize\color{gray}Stand M\"ahplan: <<PLAN_STATUS>>\hfill Seite 2 von 2}
 
 \end{document}
@@ -206,7 +208,7 @@ TEMPLATE = r"""\documentclass[10pt,a4paper]{article}
 
 
 def build_rows(
-    schedule: list[tuple[int, date, str, str, str, str, str]],
+    schedule: list[tuple[int, date, str, str, str, str, str, int]],
     include_spring_row: bool,
     spring_date: date,
     spring_note: str,
@@ -221,10 +223,16 @@ def build_rows(
         )
         lines.append("  \\hline")
 
-    for _, current_date, p1, tel1, p2, tel2, remark in schedule:
+    for _, current_date, p1, tel1, p2, tel2, remark, responsible_idx in schedule:
         date_str = current_date.strftime("%d.%m")
+        p1_cell = tex(p1)
+        p2_cell = tex(p2)
+        if responsible_idx == 1:
+            p1_cell = f"{p1_cell} \\ensuremath{{\\bullet}}"
+        else:
+            p2_cell = f"{p2_cell} \\ensuremath{{\\bullet}}"
         lines.append(
-            f"  \\rule{{0pt}}{{{row_height_ex:.2f}ex}}{date_str} & {tex(p1)} & {tex(tel1)} & {tex(p2)} & {tex(tel2)} & {tex(remark)} \\\\"
+            f"  \\rule{{0pt}}{{{row_height_ex:.2f}ex}}{date_str} & {p1_cell} & {tex(tel1)} & {p2_cell} & {tex(tel2)} & {tex(remark)} \\\\"
         )
         lines.append("  \\hline")
 
@@ -278,7 +286,7 @@ def main() -> None:
             display[key] = member_data[partner_key]["Mähpartner"]
 
     seen: set[frozenset[int]] = set()
-    schedule: list[tuple[int, date, str, str, str, str, str]] = []
+    schedule: list[tuple[int, date, str, str, str, str, str, int]] = []
 
     for key, info in member_data.items():
         nrs = [int(x.strip()) for x in info["MähterminNr"].split(",") if x.strip().isdigit()]
@@ -295,15 +303,16 @@ def main() -> None:
         tel2 = phones.get(normalize_key(p2_display), "")
         remark = str(info.get("Anmerkung", "")).strip()
 
-        for nr in sorted(nrs):
+        for idx, nr in enumerate(sorted(nrs)):
             current_date = term_0 + timedelta(weeks=nr)
-            schedule.append((nr, current_date, p1_display, tel1, p2_display, tel2, remark))
+            responsible_idx = 1 if idx % 2 == 0 else 2
+            schedule.append((nr, current_date, p1_display, tel1, p2_display, tel2, remark, responsible_idx))
 
     schedule.sort(key=lambda item: item[0])
 
     missing_phone_names = sorted(
-        {p1 for _, _, p1, tel1, _, _, _ in schedule if not tel1}
-        | {p2 for _, _, _, _, p2, tel2, _ in schedule if not tel2}
+        {p1 for _, _, p1, tel1, _, _, _, _ in schedule if not tel1}
+        | {p2 for _, _, _, _, p2, tel2, _, _ in schedule if not tel2}
     )
     if missing_phone_names:
         print("Warning: Missing phone number for the following Mäher:")
