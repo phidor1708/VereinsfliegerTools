@@ -1,0 +1,18 @@
+# VereinsfliegerTools configuration
+# Copy this file to config.yaml and fill in your credentials.
+# config.yaml is listed in .gitignore so your credentials won't be committed.
+
+vereinsflieger:
+  # Your vereinsflieger.de login credentials
+  username: "your_username@example.com"
+  password: "your_password"
+
+  # Optional: club ID (Vereinsnummer), leave empty if not required
+  club_id: ""
+
+export:
+  # Name for the distribution group/list created in Apple Contacts
+  group_name: "Modellflugverein Höchstadt"
+
+  # Directory where downloaded member lists and exports are saved
+  output_dir: "./output"
